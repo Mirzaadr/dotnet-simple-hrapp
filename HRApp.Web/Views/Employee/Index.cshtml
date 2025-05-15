@@ -1,46 +1,92 @@
 ﻿@model IEnumerable<EmployeeDTO>
 @{
-    int currentPage = ViewBag.CurrentPage;
-    int totalPages = ViewBag.TotalPages;
-    string search = ViewBag.Search;
     ViewData["Title"] = "Employee List";
 }
 <h2>Employee List</h2>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <!-- Left: Add Button -->
-    <div>
-        <a href="/Employee/Create" class="btn btn-primary mb-2">Add Employee</a>
-    </div>
+<a href="/Employee/Create" class="btn btn-primary mb-2">Add Employee</a>
 
-    <!-- Right: Search Form -->
-    <form asp-action="Index" method="get" class="d-flex" role="search">
-        <div class="input-group">
-            <input name="search" class="form-control" type="search" placeholder="Search..." value="@ViewBag.Search" />
+<table id="employeeTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Birthplace</th>
+            <th>Birthdate</th>
+            <th>Salary</th>
+            <th>Gender</th>
+            <th>Marital Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+</table>
 
-            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
-            {
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-lg"></i>
-                </a>
-            }
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#employeeTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '@Url.Action("LoadEmployees")',
+                    type: 'POST'
+                },
+                columns: [
+                    { data: 'employeeID' },
+                    { data: 'name' },
+                    { data: 'birthPlace' },
+                    {
+                        data: 'birthDate',
+                        render: function (data) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('id-ID', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit'
+                            });
+                        }
+                    },
+                    {
+                        data: 'basicSalary',
+                        render: function (data) {
+                            const salary = Number(data);
+                            let color = 'gray';
+                            let tooltip = 'Average salary';
 
-            <button class="btn btn-outline-secondary" type="submit">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </form>
-</div>
+                            if (salary >= 7000000) {
+                                color = 'green';
+                                tooltip = 'High salary';
+                            } else if (salary < 3000000) {
+                                color = 'red';
+                                tooltip = 'Low salary';
+                            }
 
+                            const formatted = salary.toLocaleString('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR'
+                            });
 
-<div id="employeeTable">
-    <partial name="_EmployeeTable" model="@Model"/>
-</div>
-
-@await Component.InvokeAsync("Pagination", new PaginationViewModel {
-    CurrentPage = currentPage,
-    TotalPages = totalPages,
-    SearchTerm = search
-})
-
+                            return `<span style="color:${color}; font-weight:bold;" title="${tooltip}">${formatted}</span>`;
+                        }
+                    },
+                    { data: 'gender' },
+                    { data: 'maritalStatus' },
+                    {
+                        data: 'id',
+                        render: function (data, type, row) {
+                            return `
+                                <a href="/Employee/Edit/${data}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil-square"></i></a>
+                                <a href="/Employee/Details/${data}" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i></a>
+                                <a href="/Employee/Delete/${data}" class="btn btn-info btn-sm">
+                                    <i class="bi bi-eye"></i></a>
+                            `;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+}
 

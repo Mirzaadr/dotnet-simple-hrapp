@@ -17,16 +17,59 @@ public class EmployeeController : Controller
         _employeeService = employeeService;
     }
 
-    public IActionResult Index(int page = 1, int pageSize = 10, string search = "")
+    public IActionResult Index()
     {
-        var employees = _employeeService.GetPaged(page, pageSize, search, out int totalItems);
-        ViewBag.CurrentPage = page;
-        ViewBag.PageSize = pageSize;
-        ViewBag.TotalItems = totalItems;
-        ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-        ViewBag.Search = search;
+        return View();
+    }
 
-        return View(employees);
+    [HttpPost]
+    public IActionResult LoadEmployees()
+    {
+        var draw = Request.Form["draw"].FirstOrDefault();
+        var start = Request.Form["start"].FirstOrDefault();
+        var length = Request.Form["length"].FirstOrDefault();
+        var searchValue = Request.Form["search[value]"].FirstOrDefault();
+        var sortColumnIndex = Convert.ToInt32(Request.Form["order[0][column]"]);
+        var sortDirection = Request.Form["order[0][dir]"];
+
+        int pageSize = length != null ? Convert.ToInt32(length) : 10;
+        int skip = start != null ? Convert.ToInt32(start) : 0;
+
+        var data = _employeeService.GetAll();
+
+        // Search
+        if (!string.IsNullOrWhiteSpace(searchValue))
+        {
+            searchValue = searchValue.ToLower();
+            data = data.Where(e =>
+                e.EmployeeID.ToLower().Contains(searchValue) ||
+                e.Name.ToLower().Contains(searchValue) ||
+                e.BirthPlace.ToLower().Contains(searchValue) ||
+                e.Gender.ToLower().Contains(searchValue) ||
+                e.MaritalStatus.ToLower().Contains(searchValue)).ToList();
+        }
+
+        // Sorting
+        var sortColumn = Request.Form[$"columns[{sortColumnIndex}][data]"];
+        var prop = typeof(EmployeeDTO).GetProperty(sortColumn!, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+        if (prop != null)
+        {
+            data = sortDirection == "asc"
+                ? data.OrderBy(e => prop.GetValue(e)).ToList()
+                : data.OrderByDescending(e => prop.GetValue(e)).ToList();
+        }
+
+        // Paging
+        var pagedData = data.Skip(skip).Take(pageSize).ToList();
+
+        return Json(new
+        {
+            draw = draw,
+            recordsTotal = _employeeService.GetAll().Count,
+            recordsFiltered = data.Count,
+            data = pagedData
+        });
     }
 
     public IActionResult Create()
