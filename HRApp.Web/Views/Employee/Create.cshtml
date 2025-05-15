@@ -1,0 +1,100 @@
+@model EmployeeDTO
+@{
+    ViewData["Title"] = "Create Employee";
+}
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="@ViewContext.RouteData.Values["action"]">
+    <div class="form-group">
+        <label asp-for="EmployeeID"></label>
+        <input asp-for="EmployeeID" class="form-control" />
+        <span asp-validation-for="EmployeeID" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BirthPlace"></label>
+        <input asp-for="BirthPlace" class="form-control" />
+        <span asp-validation-for="BirthPlace" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BirthDate"></label>
+        <input asp-for="BirthDate" type="date" class="form-control" />
+        <span asp-validation-for="BirthDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BasicSalary"></label>
+        @* <input asp-for="BasicSalary" class="form-control" id="basicSalaryInput"/> *@
+        <input type="text" id="basicSalaryFormatted" class="form-control" />
+
+        <input asp-for="BasicSalary" type="hidden" id="basicSalary" />
+        <span asp-validation-for="BasicSalary" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Gender"></label>
+        <select asp-for="Gender" class="form-control">
+            <option value="">-- Select --</option>
+            <option>Male</option>
+            <option>Female</option>
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MaritalStatus"></label>
+        <select asp-for="MaritalStatus" class="form-control">
+            <option value="">-- Select --</option>
+            <option>Single</option>
+            <option>Married</option>
+            <option>Divorced</option>
+        </select>
+        <span asp-validation-for="MaritalStatus" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a href="/Employee" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const formattedInput = document.getElementById('basicSalaryFormatted');
+        const hiddenInput = document.getElementById('basicSalary');
+
+        formattedInput.addEventListener('input', function () {
+            // Remove all commas
+            let raw = formattedInput.value.replace(/,/g, '');
+
+            // Allow only digits and max one decimal point
+            raw = raw.replace(/[^0-9.]/g, '');
+
+            // Restrict to max 2 decimal places
+            if (raw.includes('.')) {
+                const parts = raw.split('.');
+                parts[1] = parts[1].slice(0, 2); // max 2 digits after decimal
+                raw = parts[0] + '.' + parts[1];
+            }
+
+            // Format integer part with commas
+            const parts = raw.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            formattedInput.value = parts.join('.');
+
+            // Update hidden input for binding
+            hiddenInput.value = raw;
+        });
+
+        // Ensure correct value on form submit
+        document.querySelector('form').addEventListener('submit', function () {
+            hiddenInput.value = formattedInput.value.replace(/,/g, '');
+        });
+    </script>
+}

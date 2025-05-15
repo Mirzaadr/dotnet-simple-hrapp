@@ -1,0 +1,33 @@
+@model EmployeeDTO
+@{
+    ViewData["Title"] = "Employee Details";
+}
+<h2>Employee Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Employee ID</dt>
+        <dd class="col-sm-10">@Model.EmployeeID</dd>
+
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Birthplace</dt>
+        <dd class="col-sm-10">@Model.BirthPlace</dd>
+
+        <dt class="col-sm-2">Birthdate</dt>
+        <dd class="col-sm-10">@Model.BirthDate.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Basic Salary</dt>
+        <dd class="col-sm-10">@Model.BasicSalary</dd>
+
+        <dt class="col-sm-2">Gender</dt>
+        <dd class="col-sm-10">@Model.Gender</dd>
+
+        <dt class="col-sm-2">Marital Status</dt>
+        <dd class="col-sm-10">@Model.MaritalStatus</dd>
+    </dl>
+
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</div>
