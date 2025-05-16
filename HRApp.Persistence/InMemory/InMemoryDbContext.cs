@@ -23,7 +23,7 @@ public class InMemoryDbContext
                 birthDate: f.Date.Between(new DateTime(1970, 1, 1), new DateTime(2003, 1, 1)),
                 basicSalary: f.Random.Double(3000000, 10000000),
                 gender: f.PickRandom(new[] { "Male", "Female" }),
-                maritalStatus: f.PickRandom(new[] { "Single", "Married", "Divorced", "Widowed" })
+                maritalStatus: f.PickRandom(new[] { "Single", "Married", "Divorced" })
             )
         );
         var fakeEmployees = faker.Generate(count);
