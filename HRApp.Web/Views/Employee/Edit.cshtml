@@ -7,7 +7,7 @@
 <form asp-action="@ViewContext.RouteData.Values["action"]">
     <div class="form-group">
         <label asp-for="EmployeeID"></label>
-        <input asp-for="EmployeeID" class="form-control" />
+        <input asp-for="EmployeeID" class="form-control" readonly/>
         <span asp-validation-for="EmployeeID" class="text-danger"></span>
     </div>
 

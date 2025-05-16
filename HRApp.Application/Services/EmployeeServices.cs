@@ -93,4 +93,24 @@ public class EmployeeService : IEmployeeService
             .ToList();
     }
 
+    public string GenerateNextEmployeeId()
+    {
+        // Assumes EmployeeId format is like "EMP001"
+        var lastEmployee = _repository.GetAll()
+                                      .OrderByDescending(e => e.EmployeeID)
+                                      .FirstOrDefault();
+
+        int lastNumber = 0;
+
+        if (lastEmployee != null && 
+            !string.IsNullOrEmpty(lastEmployee.EmployeeID) &&
+            lastEmployee.EmployeeID.Length >= 3 &&
+            int.TryParse(lastEmployee.EmployeeID.Substring(3), out var parsed))
+        {
+            lastNumber = parsed;
+        }
+
+        int nextNumber = lastNumber + 1;
+        return $"EMP{nextNumber:D4}"; // EMP001, EMP002, ...
+    }
 }

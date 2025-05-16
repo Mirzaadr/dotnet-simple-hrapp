@@ -31,7 +31,9 @@ public class EmployeeController : Controller
 
     public IActionResult Create()
     {
-        return View();
+        var newEmployeeId = _employeeService.GenerateNextEmployeeId();
+        var model = new EmployeeDTO { EmployeeID = newEmployeeId };
+        return View(model);
     }
 
     [HttpPost]
